@@ -405,4 +405,5 @@ Built as a CSE Mini Project using:
 
 ---
 
-**CampusResolve** — FOR AIET CSE Mini Project Demonstration
+**CampusResolve** — FOR AIET CSE Mini Project Demonstration#   c a m p u s r e s o l v e  
+ 
