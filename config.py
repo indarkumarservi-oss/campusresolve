@@ -93,16 +93,6 @@ class Config:
     
     DEMO_ACCOUNTS = {
         'admin': {'email': 'admin@campusresolve.demo', 'password': 'Admin@123', 'role': 'admin'},
-        'staff': [
-            {'email': 'hostel.staff@campusresolve.demo', 'password': 'Staff@123', 'role': 'staff', 'department': 'Hostel Office'},
-            {'email': 'it.staff@campusresolve.demo', 'password': 'Staff@123', 'role': 'staff', 'department': 'IT Cell'},
-            {'email': 'maintenance.staff@campusresolve.demo', 'password': 'Staff@123', 'role': 'staff', 'department': 'Maintenance Department'},
-        ],
-        'student': [
-            {'email': 'student01@campusresolve.demo', 'password': 'Student@123', 'role': 'student'},
-            {'email': 'student02@campusresolve.demo', 'password': 'Student@123', 'role': 'student'},
-            {'email': 'student03@campusresolve.demo', 'password': 'Student@123', 'role': 'student'},
-        ]
     }
 
 
