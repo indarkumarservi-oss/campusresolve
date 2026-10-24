@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics - CampusResolve{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-bar-chart me-2"></i>Analytics</h2>
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label small">From</label>
+                <input type="date" name="date_from" class="form-control form-control-sm" value="{{ date_from or '' }}">
+            </div>
+            <div class="col-auto">
+                <label class="form-label small">To</label>
+                <input type="date" name="date_to" class="form-control form-control-sm" value="{{ date_to or '' }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel me-1"></i>Filter</button>
+            </div>
+            <div class="col-auto">
+                <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ avg_rating or 'N/A' }}</h3>
+                <p class="mb-0 text-muted">Avg Satisfaction</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ rating_dist|sum(attribute=1) or 0 }}</h3>
+                <p class="mb-0 text-muted">Total Feedback</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">{{ by_category|length }}</h3>
+                <p class="mb-0 text-muted">Categories Used</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ top_locations|length }}</h3>
+                <p class="mb-0 text-muted">Top Locations</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Complaints by Category</strong></div>
+            <div class="card-body"><canvas id="catChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Complaints by Status</strong></div>
+            <div class="card-body"><canvas id="statusChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Complaints by Priority</strong></div>
+            <div class="card-body"><canvas id="priChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Monthly Trend</strong></div>
+            <div class="card-body"><canvas id="monthlyChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Avg Resolution Time by Department (days)</strong></div>
+            <div class="card-body"><canvas id="deptChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Top Locations</strong></div>
+            <div class="card-body"><canvas id="locChart" height="300"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Satisfaction Ratings</strong></div>
+            <div class="card-body"><canvas id="ratingChart" height="300"></canvas></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const primary = '#0d6efd', success = '#198754', info = '#0dcaf0', warning = '#ffc107', danger = '#dc3545';
+    const colors = ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#0dcaf0', '#20c997', '#198754', '#ffc107', '#fd7e14', '#dc3545', '#6c757d'];
+    
+    // Category
+    new Chart(document.getElementById('catChart'), {
+        type: 'bar',
+        data: { labels: {{ by_category|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Count', data: {{ by_category|map(attribute=1)|list|tojson }}, backgroundColor: colors }]},
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    // Status
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: { labels: {{ by_status|map(attribute=0)|list|tojson }}, datasets: [{ data: {{ by_status|map(attribute=1)|list|tojson }}, backgroundColor: ['#6c757d', info, primary, '#0dcaf0', warning, success, '#6c757d'] }]},
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+    
+    // Priority
+    new Chart(document.getElementById('priChart'), {
+        type: 'bar',
+        data: { labels: {{ by_priority|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Count', data: {{ by_priority|map(attribute=1)|list|tojson }}, backgroundColor: ['#20c997', info, warning, danger] }]},
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    
+    // Monthly
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: { labels: {{ monthly|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Complaints', data: {{ monthly|map(attribute=1)|list|tojson }}, borderColor: primary, backgroundColor: 'rgba(13,110,253,0.1)', fill: true, tension: 0.3 }]},
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    
+    // Department Resolution
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: { labels: {{ dept_resolution|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Avg Days', data: {{ dept_resolution|map(attribute=1)|map('round', 1)|list|tojson }}, backgroundColor: primary }]},
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    // Locations
+    new Chart(document.getElementById('locChart'), {
+        type: 'bar',
+        data: { labels: {{ top_locations|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Count', data: {{ top_locations|map(attribute=1)|list|tojson }}, backgroundColor: info }]},
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+    
+    // Ratings
+    new Chart(document.getElementById('ratingChart'), {
+        type: 'bar',
+        data: { labels: {{ rating_dist|map(attribute=0)|list|tojson }}, datasets: [{ label: 'Count', data: {{ rating_dist|map(attribute=1)|list|tojson }}, backgroundColor: warning }]},
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { title: { display: true, text: 'Rating' } } } }
+    });
+});
+</script>
+{% endblock %}

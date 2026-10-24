@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Registration - CampusResolve{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-google me-2"></i>Complete Your Registration</h4>
+            </div>
+            <div class="card-body p-4">
+                {% if google_data %}
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ google_data.picture }}" alt="Profile" width="48" height="48" class="rounded-circle me-3">
+                        <div>
+                            <strong>{{ google_data.full_name }}</strong><br>
+                            <small>{{ google_data.email }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <form method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.full_name.label(class="form-label") }}
+                            {{ form.full_name(class="form-control") }}
+                            {% for error in form.full_name.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.course.label(class="form-label") }}
+                            {{ form.course(class="form-select") }}
+                            {% for error in form.course.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.branch.label(class="form-label") }}
+                            {{ form.branch(class="form-select") }}
+                            {% for error in form.branch.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.usn.label(class="form-label") }}
+                            {{ form.usn(class="form-control", placeholder="e.g., 1CS21CS001") }}
+                            {% for error in form.usn.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control", placeholder="+91 9876543210") }}
+                        {% for error in form.phone.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.address.label(class="form-label") }}
+                        {{ form.address(class="form-control", placeholder="Full address for correspondence") }}
+                        {% for error in form.address.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h5>Set Password (Optional)</h5>
+                    <p class="text-muted small">Leave blank to use Google login only. Set a password if you want to log in with email/password as well.</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.password.label(class="form-label") }}
+                            {{ form.password(class="form-control", autocomplete="new-password") }}
+                            {% for error in form.password.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            {{ form.confirm_password(class="form-control", autocomplete="new-password") }}
+                            {% for error in form.confirm_password.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

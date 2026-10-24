@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}CampusResolve{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Theme Toggle Styles -->
+    <style>
+        .theme-toggle {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--primary);
+        }
+        .theme-toggle:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+        .theme-toggle .sun-icon { display: none; }
+        .theme-toggle .moon-icon { display: inline; }
+        [data-theme="dark"] .theme-toggle .sun-icon { display: inline; }
+        [data-theme="dark"] .theme-toggle .moon-icon { display: none; }
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNavbar" role="navigation" aria-label="Main navigation">
+        <div class="container-fluid px-3 px-md-4 px-lg-5">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}" aria-label="CampusResolve Home">
+                <img src="{{ url_for('static', filename='img/college-logo.png') }}" alt="Akash Group of Institutions Logo" class="navbar-brand-logo" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                <div class="d-none d-md-block">
+                    <span class="navbar-brand-text fw-bold" style="font-size: 1.15rem; letter-spacing: -0.02em;">CampusResolve</span>
+                    <div class="navbar-brand-tagline" style="font-size: 0.65rem; font-weight: 500; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase;">Akash Group of Institutions</div>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if current_user.is_authenticated %}
+                    <ul class="navbar-nav me-auto gap-1">
+                        {% if current_user.is_admin() %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Admin Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.complaints') }}"><i class="bi bi-ticket-perforated me-1"></i>All Complaints</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.users') }}"><i class="bi bi-people me-1"></i>Users
+                                {% set pending_staff_count = User.query.filter_by(role='staff', is_approved=False).count() %}
+                                {% if pending_staff_count > 0 %}
+                                <span class="badge bg-warning text-dark ms-1">{{ pending_staff_count }}</span>
+                                {% endif %}
+                            </a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.analytics') }}"><i class="bi bi-bar-chart me-1"></i>Analytics</a></li>
+                        {% elif current_user.is_staff() %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('staff.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>Staff Dashboard</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('student.dashboard') }}"><i class="bi bi-speedometer2 me-1"></i>My Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('student.new_complaint') }}"><i class="bi bi-plus-circle me-1"></i>Raise Complaint</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('student.my_complaints') }}"><i class="bi bi-list-ul me-1"></i>My Complaints</a></li>
+                        {% endif %}
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell me-1"></i>
+                                <span class="badge bg-danger notification-badge" id="notif-badge" style="display: none;">0</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 380px; max-height: 420px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li id="notif-list"><div class="text-center p-3 text-muted">Loading...</div></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="{{ url_for('student.notifications') }}">View All Notifications</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link theme-toggle p-2" id="themeToggle" title="Toggle theme (Ctrl+Shift+L)" aria-label="Toggle theme">
+                                <i class="bi bi-sun-fill sun-icon" style="font-size: 1.1rem;"></i>
+                                <i class="bi bi-moon-fill moon-icon" style="font-size: 1.1rem;"></i>
+                            </button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <span class="fw-medium d-none d-md-block">{{ current_user.full_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text"><small>{{ current_user.email }}</small></span></li>
+                                <li><span class="dropdown-item-text"><span class="badge {% if current_user.is_admin() %}role-admin{% elif current_user.is_staff() %}role-staff{% else %}role-student{% endif %}">{{ current_user.role.capitalize() }}</span></span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ms-auto gap-2">
+                        <li class="nav-item">
+                            <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary-gradient" href="{{ url_for('auth.login') }}">
+                                <i class="bi bi-rocket-takeoff me-1"></i>Explore Demo
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid px-0">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container-fluid px-4" style="max-width: 1200px; margin-top: 1rem;">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show animate-fade-in" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer py-4 border-top" role="contentinfo">
+        <div class="container-fluid px-3 px-md-4 px-lg-5">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="footer-brand-icon d-flex align-items-center justify-content-center" aria-hidden="true">
+                            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                <rect width="32" height="32" rx="8" fill="url(#footerBrandGradient)"/>
+                                <path d="M16 8L22 14V24L16 30L10 24V14L16 8Z" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
+                                <path d="M16 12V20M11 17H21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                                <defs>
+                                    <linearGradient id="footerBrandGradient" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#06b6d4"/>
+                                        <stop offset="100%" stop-color="#2563eb"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="fw-bold" style="font-size: 1rem;">CampusResolve</span>
+                    </div>
+                    <p class="text-muted small mb-0">AIET CSE - DS Mini Project Demonstration</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted small mb-0">This is a CSE mini-project using fictional data. All accounts and complaints are demo-only. The system runs entirely locally with no external data transmission. Automated suggestions are advisory only — administrators make final decisions. This system can be implemented for real use in our college.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CampusResolve{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-speedometer2 me-2"></i>Student Dashboard</h2>
+            <p class="text-muted">Welcome back, {{ current_user.full_name }}! Here's an overview of your complaints.</p>
+        </div>
+        <a href="{{ url_for('student.new_complaint') }}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Raise Complaint</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ total }}</h3>
+                <p class="mb-0 text-muted">Total Complaints</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ open_count }}</h3>
+                <p class="mb-0 text-muted">Open Complaints</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ resolved }}</h3>
+                <p class="mb-0 text-muted">Resolved</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-secondary">
+            <div class="card-body text-center">
+                <h3 class="text-secondary">{{ closed }}</h3>
+                <p class="mb-0 text-muted">Closed</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">{{ overdue_count or 0 }}</h3>
+                <p class="mb-0 text-muted">Overdue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ pending_response_count or 0 }}</h3>
+                <p class="mb-0 text-muted">Awaiting Response</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ in_progress_count or 0 }}</h3>
+                <p class="mb-0 text-muted">In Progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-dark">
+            <div class="card-body text-center">
+                <h3 class="text-dark">{{ unread_count }}</h3>
+                <p class="mb-0 text-muted">Unread Notifications</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Complaints</h5>
+                <a href="{{ url_for('student.my_complaints') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>SLA</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in recent %}
+                                {% set sla = get_sla_status(c) %}
+                                <tr {% if sla.overdue %}class="table-danger"{% elif sla.status in ['due_today', 'approaching'] %}class="table-warning"{% endif %}>
+                                    <td><a href="{{ url_for('student.complaint_detail', ticket_number=c.ticket_number) }}" class="fw-bold">{{ c.ticket_number }}</a></td>
+                                    <td>{{ c.title[:50] }}{% if c.title|length > 50 %}...{% endif %}</td>
+                                    <td>{% if c.category %}<span class="badge bg-info">{{ c.category }}</span>{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                    <td>{% if c.priority %}<span class="badge priority-{{ c.priority.lower() }}">{{ c.priority }}</span>{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                    <td><span class="badge status-{{ c.status.lower().replace(' ', '-') }}">{{ c.status }}</span></td>
+                                    <td>
+                                        {% if sla.status != 'no_due_date' %}
+                                        <span class="kanban-due {{ sla.status }}">{{ sla.status|upper }}</span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted small">{{ c.created_at|datetimeformat('%d %b %Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="mt-3 text-muted">No complaints yet</p>
+                        <a href="{{ url_for('student.new_complaint') }}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Raise Your First Complaint</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-bell me-2"></i>Notifications</h5>
+                {% if unread_count > 0 %}
+                    <span class="badge bg-danger">{{ unread_count }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                {% if notifications %}
+                    <ul class="list-group list-group-flush">
+                        {% for n in notifications %}
+                        <li class="list-group-item notification-item {% if not n.is_read %}unread{% endif %}" data-notif-id="{{ n.id }}">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-{% if 'Assigned' in n.title %}person-check{% elif 'Status' in n.title %}arrow-repeat{% elif 'Feedback' in n.title %}star{% else %}info-circle{% endif %} text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">{{ n.title }}</h6>
+                                    <p class="mb-1 small text-muted">{{ n.message }}</p>
+                                    <small class="text-muted">{{ n.created_at|timeago }}</small>
+                                </div>
+                                {% if not n.is_read %}
+                                    <button class="btn btn-sm btn-outline-secondary mark-read" data-notif-id="{{ n.id }}" title="Mark as read"><i class="bi bi-check"></i></button>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-bell-slash display-1 text-muted"></i>
+                        <p class="mt-2 text-muted">No notifications</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('student.notifications') }}" class="btn btn-sm btn-outline-primary w-100">View All Notifications</a>
+            </div>
+        </div>
+        
+        <div class="card shadow-sm mt-3">
+            <div class="card-body text-center">
+                <a href="{{ url_for('student.new_complaint') }}" class="btn btn-primary w-100"><i class="bi bi-plus-circle me-2"></i>Raise New Complaint</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = "{{ csrf_token() }}";
+    const headers = {'X-CSRFToken': csrfToken, 'Content-Type': 'application/json'};
+
+    document.querySelectorAll('.mark-read').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const notifId = this.dataset.notifId;
+            fetch(`/api/notifications/read/${notifId}`, {method: 'POST', headers: headers})
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const item = document.querySelector(`.notification-item[data-notif-id="${notifId}"]`);
+                        item.classList.remove('unread');
+                        this.remove();
+                        updateBadge();
+                    }
+                });
+        });
+    });
+    
+    function updateBadge() {
+        fetch('/api/notifications/unread-count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('notif-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+    }
+    
+    updateBadge();
+    setInterval(updateBadge, 30000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+
+{% block title %}Campus Issue Map - CampusResolve{% endblock %}
+
+{% block extra_head %}
+<style>
+.campus-map-container {
+    position: relative;
+    width: 100%;
+    height: 70vh;
+    min-height: 500px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+}
+
+.campus-map-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.campus-building {
+    fill: var(--bg-tertiary);
+    stroke: var(--border-medium);
+    stroke-width: 1.5;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.campus-building:hover {
+    fill: var(--primary);
+    stroke: var(--primary);
+    fill-opacity: 0.2;
+}
+
+.campus-building-label {
+    font-size: 11px;
+    fill: var(--text-secondary);
+    pointer-events: none;
+    font-weight: 500;
+}
+
+.campus-heat-point {
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.campus-heat-point:hover {
+    r: 18 !important;
+    opacity: 1 !important;
+}
+
+.heat-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.heat-legend-gradient {
+    width: 150px;
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+}
+
+.map-sidebar {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
+    height: 100%;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-sidebar-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+}
+
+.map-location-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.map-location-item {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.375rem;
+    cursor: pointer;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.map-location-item:hover {
+    background: var(--bg-secondary);
+}
+
+.map-location-item.active {
+    background: rgba(37, 99, 235, 0.05);
+    border-left-color: var(--primary);
+}
+
+.map-location-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.map-location-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+}
+
+.map-location-building {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.map-detail-panel {
+    padding: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.map-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+}
+
+.map-stat-label {
+    color: var(--text-secondary);
+}
+
+.map-stat-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+@media (max-width: 991.98px) {
+    .campus-map-container {
+        height: 50vh;
+        min-height: 400px;
+    }
+    .map-sidebar {
+        min-height: 300px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-map me-2"></i>Campus Issue Map</h2>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content between align-items-center">
+                <strong>Campus Heatmap</strong>
+                <div class="heat-legend">
+                    <span>Low</span>
+                    <div class="heat-legend-gradient"></div>
+                    <span>High</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="campus-map-container">
+                    <svg class="campus-map-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Buildings -->
+                        {% for name, data in locations.items() %}
+                        <rect class="campus-building" 
+                              x="{{ data.x - 5 }}" y="{{ data.y - 5 }}" 
+                              width="10" height="10" 
+                              rx="2" ry="2"
+                              data-name="{{ name }}"
+                              data-building="{{ data.building }}">
+                            <title>{{ name }} ({{ data.building }})</title>
+                        </rect>
+                        <text class="campus-building-label" 
+                              x="{{ data.x }}" y="{{ data.y - 7 }}" 
+                              text-anchor="middle">{{ name }}</text>
+                        {% endfor %}
+                        
+                        <!-- Heat points -->
+                        {% for point in heatmap_data %}
+                        <circle class="campus-heat-point"
+                                cx="{{ point.x }}" cy="{{ point.y }}"
+                                r="{{ [5 + point.count * 2, 20]|min }}"
+                                fill="url(#heat-gradient)"
+                                fill-opacity="0.6"
+                                filter="url(#glow)"
+                                data-location="{{ point.location }}"
+                                data-count="{{ point.count }}"
+                                data-building="{{ point.building }}">
+                            <title>{{ point.location }}: {{ point.count }} complaints</title>
+                        </circle>
+                        {% endfor %}
+                        
+                        <defs>
+                            <linearGradient id="heat-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity="0.8"/>
+                                <stop offset="50%" stop-color="#f59e0b" stop-opacity="0.8"/>
+                                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.8"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4">
+        <div class="map-sidebar">
+            <div class="map-sidebar-header d-flex justify-content-between align-items-center">
+                <strong><i class="bi bi-geo-alt me-2"></i>Locations</strong>
+                <span class="badge bg-primary">{{ heatmap_data|length }} active</span>
+            </div>
+            <div class="map-location-list">
+                {% for point in heatmap_data|sort(attribute='count', reverse=true) %}
+                <div class="map-location-item" data-location="{{ point.location }}">
+                    <div class="map-location-name">{{ point.location }}</div>
+                    <div class="map-location-building">{{ point.building }}</div>
+                    <div class="map-location-count">
+                        <span class="badge bg-{% if point.count > 10 %}danger{% elif point.count > 5 %}warning{% else %}info{% endif %}">
+                            {{ point.count }} complaint{{ 's' if point.count != 1 else '' }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not heatmap_data %}
+                <div class="text-center p-4 text-muted">
+                    <i class="bi bi-map display-1"></i>
+                    <p class="mt-2">No complaints with location data</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="map-detail-panel">
+                <div class="map-stat">
+                    <span class="map-stat-label">Total Locations</span>
+                    <span class="map-stat-value">{{ locations|length }}</span>
+                </div>
+                <div class="map-stat">
+                    <span class="map-stat-label">Active Locations</span>
+                    <span class="map-stat-value">{{ heatmap_data|length }}</span>
+                </div>
+                <div class="map-stat">
+                    <span class="map-stat-label">Total Complaints</span>
+                    <span class="map-stat-value">{{ heatmap_data|sum(attribute='count') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const locationItems = document.querySelectorAll('.map-location-item');
+    const heatPoints = document.querySelectorAll('.campus-heat-point');
+    
+    function showLocationDetails(locationName) {
+        // Could open a modal or navigate to detail view
+        console.log('Location clicked:', locationName);
+    }
+    
+    locationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            locationItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            showLocationDetails(this.dataset.location);
+        });
+    });
+    
+    heatPoints.forEach(point => {
+        point.addEventListener('click', function() {
+            const location = this.dataset.location;
+            // Highlight corresponding sidebar item
+            locationItems.forEach(item => {
+                if (item.dataset.location === location) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
+        
+        point.addEventListener('mouseenter', function() {
+            const location = this.dataset.location;
+            locationItems.forEach(item => {
+                if (item.dataset.location === location) {
+                    item.style.background = 'rgba(37, 99, 235, 0.1)';
+                }
+            });
+        });
+        
+        point.addEventListener('mouseleave', function() {
+            locationItems.forEach(item => {
+                item.style.background = '';
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

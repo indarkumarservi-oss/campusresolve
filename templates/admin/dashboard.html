@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - CampusResolve{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
+            <p class="text-muted">System overview and key metrics</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.kanban') }}" class="btn btn-outline-primary"><i class="bi bi-kanban me-1"></i>Kanban</a>
+            <a href="{{ url_for('admin.campus_map') }}" class="btn btn-outline-secondary"><i class="bi bi-map me-1"></i>Map</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ total }}</h3>
+                <p class="mb-0 text-muted">Total Complaints</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ submitted_review }}</h3>
+                <p class="mb-0 text-muted">Submitted/Review</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">{{ assigned_progress }}</h3>
+                <p class="mb-0 text-muted">Assigned/In Progress</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-danger">
+            <div class="card-body text-center">
+                <h3 class="text-danger">{{ overdue }}</h3>
+                <p class="mb-0 text-muted">Overdue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ resolved_closed }}</h3>
+                <p class="mb-0 text-muted">Resolved/Closed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="card stat-card border-secondary">
+            <div class="card-body text-center">
+                <h3 class="text-secondary">{{ avg_days }} days</h3>
+                <p class="mb-0 text-muted">Avg Resolution</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pending_staff_count and pending_staff_count > 0 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3">
+                            <i class="bi bi-person-check fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Pending Staff Approvals</h5>
+                            <p class="mb-0 text-muted">{{ pending_staff_count }} staff member{{ 's' if pending_staff_count != 1 else '' }} awaiting approval</p>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('admin.staff_approvals') }}" class="btn btn-warning">
+                        <i class="bi bi-arrow-right me-1"></i>Review Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">{{ sla_rate }}%</h3>
+                <p class="mb-0 text-muted">SLA Compliance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ sla_compliant }}/{{ sla_total }}</h3>
+                <p class="mb-0 text-muted">Within SLA</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">{{ staff_workload|length }}</h3>
+                <p class="mb-0 text-muted">Active Staff</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card border-danger">
+            <div class="card-body text-center">
+                <h3 class="text-danger">{{ recurring_issues|length }}</h3>
+                <p class="mb-0 text-muted">Recurring Patterns</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header"><strong>Charts Overview</strong></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <canvas id="categoryChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <canvas id="statusChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <canvas id="priorityChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <canvas id="monthlyChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Recent Activity</strong>
+                <a href="{{ url_for('admin.complaints') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_activity %}
+                <ul class="list-group list-group-flush">
+                    {% for a in recent_activity %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ a.created_at|timeago }}</small>
+                        </div>
+                        <div class="small">
+                            <strong>{{ a.actor.full_name }}</strong> {{ a.action }} <strong>{{ a.entity_type }}</strong> #{{ a.entity_id }}
+                            {% if a.details %}: {{ a.details[:100] }}{% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3 text-muted">No recent activity</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Overdue Tickets</strong></div>
+            <div class="card-body p-0">
+                {% if overdue_tickets %}
+                <ul class="list-group list-group-flush">
+                    {% for c in overdue_tickets %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('admin.complaint_detail', ticket_number=c.ticket_number) }}" class="text-decoration-none">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ c.ticket_number }}</strong>
+                                <span class="badge bg-danger">Overdue</span>
+                            </div>
+                            <small class="text-muted">{{ c.title[:50] }}{% if c.title|length > 50 %}...{% endif %}</small>
+                            <div class="small text-muted">Due: {{ c.due_date|datetimeformat('%d %b') }} | {{ c.department or 'Unassigned' }}</div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3 text-success">
+                    <i class="bi bi-check-circle display-1"></i>
+                    <p class="mt-2">No overdue tickets!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header"><strong>Staff Workload</strong></div>
+            <div class="card-body p-0">
+                {% if staff_workload %}
+                <ul class="list-group list-group-flush">
+                    {% for w in staff_workload %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ w.staff.full_name }}</strong>
+                                <span class="badge bg-info ms-2">{{ w.staff.department }}</span>
+                            </div>
+                            <div class="text-end">
+                                <div class="small text-muted">{{ w.open_count }} open</div>
+                                <div class="small text-danger">{{ w.overdue_count }} overdue</div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3 text-muted">No staff data</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header"><strong>Recurring Issue Patterns</strong></div>
+            <div class="card-body p-0">
+                {% if recurring_issues %}
+                <ul class="list-group list-group-flush">
+                    {% for issue in recurring_issues %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-info me-2">{{ issue.category }}</span>
+                                <strong>{{ issue.sample_title[:50] }}{% if issue.sample_title|length > 50 %}...{% endif %}</strong>
+                            </div>
+                            <span class="badge bg-warning text-dark">{{ issue.count }} tickets</span>
+                        </div>
+                        <div class="small text-muted">{{ issue.tickets|join(', ') }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center py-3 text-muted">No recurring patterns detected</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const primaryColor = '#0d6efd';
+    const warningColor = '#ffc107';
+    const dangerColor = '#dc3545';
+    const successColor = '#198754';
+    const infoColor = '#0dcaf0';
+    
+    // Category Chart
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_stats|map(attribute=0)|list|tojson }},
+            datasets: [{
+                data: {{ category_stats|map(attribute=1)|list|tojson }},
+                backgroundColor: [primaryColor, '#6610f2', '#6f42c1', '#d63384', infoColor, '#20c997', successColor, warningColor, '#fd7e14', dangerColor, '#6c757d']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+    });
+    
+    // Status Chart
+    new Chart(document.getElementById('statusChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ status_stats|map(attribute=0)|list|tojson }},
+            datasets: [{
+                data: {{ status_stats|map(attribute=1)|list|tojson }},
+                backgroundColor: ['#6c757d', infoColor, primaryColor, '#0dcaf0', warningColor, successColor, '#6c757d']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+    });
+    
+    // Priority Chart
+    new Chart(document.getElementById('priorityChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ priority_stats|map(attribute=0)|list|tojson }},
+            datasets: [{
+                label: 'Count',
+                data: {{ priority_stats|map(attribute=1)|list|tojson }},
+                backgroundColor: ['#20c997', infoColor, warningColor, dangerColor]
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+    
+    // Monthly Trend
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+        data: {
+            labels: {{ monthly|map(attribute=0)|list|tojson }},
+            datasets: [{
+                label: 'Complaints',
+                data: {{ monthly|map(attribute=1)|list|tojson }},
+                borderColor: primaryColor,
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
+});
+</script>
+{% endblock %}

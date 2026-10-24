@@ -1,0 +1,103 @@
+title,description,category,priority,department,resolution_time_days
+Water supply issue in hostel,No water in hostel block A since morning. Students cannot bathe or use washrooms. Urgent attention needed.,Hostel,High,Hostel Office,2
+WiFi not working in library,WiFi has been down in the main library for two days. Students cannot access online resources or submit assignments.,IT Support,Critical,IT Cell,1
+Library book missing from shelves,Data Structures and Algorithms by Cormen shows available in catalog but not on shelf. Multiple students reported this.,Library,Medium,Library,4
+Bus route 12 delayed daily,Bus route 12 from campus to city center is consistently 30 minutes late every morning. Students miss first period classes.,Transport,High,Transport Office,2
+Exam results not published,Semester 4 results for CS department were due last week but not on portal. Students need for internship applications.,Examination,High,Examination Cell,3
+Fee receipt not generated after payment,Paid semester fees online on 15th Jan. Payment successful but no receipt generated. Have transaction ID.,Fees and Accounts,Medium,Accounts Section,4
+Projector not working in classroom,Projector in Classroom 302 shows distorted colors and disconnects frequently. Affects all classes in this room.,Campus Facilities,Medium,Maintenance Department,4
+Placement portal login issues,Cannot login to placement portal with valid credentials. Shows invalid credentials error. Preventing job applications.,Placement,High,Placement Cell,4
+Mess food quality poor,"Food quality in hostel mess deteriorated. Food cold, stale, undercooked. Students falling sick. Need investigation.",Hostel,High,Hostel Office,2
+AC not working in computer lab,Air conditioning in Computer Lab 2 not working. Room too hot for practical sessions. Multiple complaints.,Campus Facilities,Medium,Maintenance Department,4
+Scholarship portal error,Scholarship application portal throws 500 error on submit. Happening for 3 days. Deadline approaching.,IT Support,Critical,IT Cell,1
+Exam hall seating not published,Seating arrangement for mid-term exams not published. Students don't know exam halls and seat numbers.,Examination,Medium,Examination Cell,5
+Hostel room leaking ceiling,Ceiling in Room 204 Hostel Block B leaking during rain. Water on bed and table. Mold forming. Reported twice before.,Hostel,High,Hostel Office,2
+Library fine incorrectly charged,Returned Operating System Concepts on 10th Jan but system shows overdue with Rs 500 fine. Have return receipt.,Library,Low,Library,7
+Bus not stopping at designated stop,Bus route 5 does not stop at the Engineering Block stop in the morning. Students have to walk 1 km from the next stop. This happens specifically with the 7:30 AM bus. Driver ignores the stop.,Transport,Medium,Transport Office,3
+Course registration system error,"During course registration for next semester, the system shows ""Prerequisite not met"" for courses I have already completed. This is preventing me from registering for required elective courses.",Academics,High,Academic Department / HOD,4
+Mental health counseling request,I would like to request an appointment with the campus counselor for academic stress and anxiety. I have been feeling overwhelmed with coursework and need professional guidance. This is not an emergency.,Student Wellbeing,Medium,Student Support Cell,4
+Parking space shortage,There is severe shortage of parking space for two-wheelers near the Main Gate. Vehicles are parked on the road causing traffic congestion. Need additional parking area or better management.,Campus Facilities,Low,Maintenance Department,7
+Water pressure low in hostel block,Water pressure very low in Hostel Block C. Showers and taps minimal flow. Ongoing for a week.,Hostel,Medium,Hostel Office,3
+Lab equipment not calibrated,The oscilloscopes and function generators in Electronics Lab 1 have not been calibrated for over 6 months. Measurements are inaccurate affecting lab experiments and project work.,Campus Facilities,High,Maintenance Department,2
+Exam re-evaluation pending,Applied for Data Structures re-evaluation 3 weeks ago. No update on status. The deadline for re-evaluation results was 2 weeks ago. Need this for GPA.,Examination,High,Examination Cell,3
+Internet slow in hostel rooms,Internet speed in hostel rooms extremely slow. Cannot attend online classes or download study material.,IT Support,Medium,IT Cell,3
+Canteen hygiene concerns,Food preparation area in canteen appears unhygienic. Seen pests near storage. Health hazard for students.,Campus Facilities,High,Maintenance Department,2
+Library timings too short,Library closes at 6 PM but students need to study later. Request extension to 10 PM during exam season.,Library,Low,Library,7
+Transport safety issue,Bus driver on route 3 drives rashly. Overtakes dangerously. Students feel unsafe. Need driver training.,Transport,High,Transport Office,2
+Fee structure unclear,Fee breakdown for semester not transparent. Hidden charges appear. Need detailed fee structure document.,Fees and Accounts,Medium,Accounts Section,4
+Professor not taking classes,Professor for Database Systems has not taken classes for 3 weeks. Syllabus behind. No substitute arranged.,Academics,High,Academic Department / HOD,4
+Hostel warden rude behavior,Hostel warden behaves rudely with students. Uses abusive language. Multiple students uncomfortable.,Hostel,Medium,Hostel Office,3
+Placement training inadequate,Pre-placement training sessions are basic. Not covering latest technologies. Students unprepared for interviews.,Placement,Medium,Placement Cell,7
+Sports equipment broken,Badminton courts have broken nets. Gym equipment rusted and unsafe. No maintenance for months.,Campus Facilities,Low,Maintenance Department,7
+Exam paper leak rumor,Rumors of mid-term paper leak circulating. Need investigation to ensure fair examination process.,Examination,Critical,Examination Cell,1
+Scholarship delay,Merit scholarship for last semester not disbursed. Students from economically weak sections affected.,Fees and Accounts,High,Accounts Section,2
+Library digital access not working,Online journals and databases inaccessible from campus network. Proxy settings not configured properly.,IT Support,Medium,IT Cell,3
+Bus overcrowding,Bus route 7 extremely overcrowded. Students hanging on doors. Safety hazard. Need additional bus.,Transport,High,Transport Office,2
+Classroom chairs broken,Many chairs in Lecture Hall 4 broken. Students sitting on floor or standing. Need replacement.,Campus Facilities,Medium,Maintenance Department,4
+Hostel laundry machines broken,Washing machines in Hostel Block D not working for 2 weeks. Students hand-washing clothes.,Hostel,Medium,Hostel Office,3
+Placement cell unresponsive,Placement cell not responding to emails. No updates on company visits. Students anxious about jobs.,Placement,Medium,Placement Cell,7
+Water cooler not working,Water coolers on 2nd floor Engineering Block not working. No drinking water on that floor.,Campus Facilities,Medium,Maintenance Department,4
+Exam schedule clash,Two core subject exams scheduled same time. Students cannot attend both. Need rescheduling.,Examination,High,Examination Cell,3
+Fee payment portal down,Online fee payment portal down since yesterday. Cannot pay before deadline. Extension needed.,Fees and Accounts,Critical,Accounts Section,1
+Library book damaged,Received damaged book from library. Charged for damage but book was already damaged when issued.,Library,Low,Library,7
+Transport strike affecting students,Transport staff strike since Monday. No buses running. Students stranded. Need alternative.,Transport,Critical,Transport Office,1
+Professor grading unfair,Professor for Algorithms grading inconsistently. Same answers get different marks. Need review.,Academics,Medium,Academic Department / HOD,7
+Hostel ragging complaint,Senior students harassing juniors in Hostel Block E. Verbal abuse and forced tasks. Anonymous report.,Hostel,Critical,Hostel Office,1
+Placement offer letter delay,Company gave verbal offer but written offer letter delayed. Students cannot plan. Need follow-up.,Placement,High,Placement Cell,4
+Campus lighting poor,Pathways between hostel and academic blocks poorly lit. Unsafe at night. Need more streetlights.,Campus Facilities,Medium,Maintenance Department,4
+Exam hall AC not working,AC in Exam Hall 3 not working. Temperature too high during afternoon exams. Affects concentration.,Examination,Medium,Examination Cell,5
+Fee concession not applied,Applied for fee concession but not reflected in fee statement. Deadline for payment approaching.,Fees and Accounts,High,Accounts Section,2
+Library noise disturbance,Group study area too loud. Disturbing silent study zone. Need better separation or enforcement.,Library,Low,Library,7
+Bus schedule not updated,Bus schedule on website outdated. Buses running on old timings. Students missing buses.,Transport,Medium,Transport Office,3
+Projector bulb replacement needed,Projectors in multiple classrooms have dim bulbs. Hard to see slides. Need bulb replacement.,Campus Facilities,Low,Maintenance Department,7
+Hostel WiFi frequent disconnection,Hostel WiFi disconnects every 10 minutes. Cannot maintain stable connection for classes.,IT Support,High,IT Cell,1.5
+Placement mock interview scheduling,Mock interviews scheduled during class hours. Students forced to choose. Need better scheduling.,Placement,Medium,Placement Cell,7
+Canteen food variety limited,Same menu every day for months. No vegetarian/non-veg options on some days. Students bored.,Campus Facilities,Low,Maintenance Department,7
+Exam answer key not released,Answer keys for mid-term exams not released. Students cannot verify marks. Transparency needed.,Examination,Medium,Examination Cell,5
+Fee refund process slow,Cancelled admission but fee refund not processed after 30 days. Policy says 15 days. Need escalation.,Fees and Accounts,High,Accounts Section,2
+Library membership renewal,Library membership expired. Renewal process complicated and offline only. Need online renewal.,Library,Low,Library,7
+Bus timing for early classes,No bus for 7 AM classes from city campus. Students must take auto. Need early morning bus.,Transport,Medium,Transport Office,3
+Campus road potholes,Main campus road has large potholes. Vehicles damaged. Accidents happened. Urgent repair needed.,Campus Facilities,High,Maintenance Department,2
+Hostel common room TV broken,Common room TV in Hostel Block F not working for months. Only recreation for students.,Hostel,Low,Hostel Office,5
+Placement salary data not shared,Placement cell not sharing salary packages of placed students. Need transparency for negotiation.,Placement,Medium,Placement Cell,7
+Exam invigilator misconduct,Invigilator in Exam Hall 2 helping certain students. Unfair advantage. Need investigation.,Examination,Critical,Examination Cell,1
+Fee structure for foreign students,Fee structure for international students not published. Confusion during admission. Need clarity.,Fees and Accounts,Medium,Accounts Section,4
+Library new book requests,Requested new books for syllabus not purchased. Library budget not utilized. Students suffering.,Library,Medium,Library,4
+Bus driver behavior rude,Bus driver on route 4 argues with students. Refuses to stop at requested stops. Complaints ignored.,Transport,Medium,Transport Office,3
+Hostel water heater not working,Geysers in Hostel Block G not working. Cold water in winter. Health issue for students.,Hostel,High,Hostel Office,2
+Placement company blacklist request,Request to blacklist company that ghosted students after selection. Wasted student time.,Placement,Medium,Placement Cell,7
+Campus signage missing,No directional signs for departments. New students and visitors get lost. Need proper signage.,Campus Facilities,Low,Maintenance Department,7
+Exam supplementary form error,Supplementary exam form shows error on submit. Deadline tomorrow. Students panic.,Examination,Critical,Examination Cell,1
+Fee receipt duplicate issue,Generated fee receipt twice for same payment. Accounts shows double payment. Need correction.,Fees and Accounts,Medium,Accounts Section,4
+Library e-book access denied,Cannot access subscribed e-books from off-campus. VPN not working for library resources.,IT Support,Medium,IT Cell,3
+Bus GPS tracking not working,Bus tracking app shows wrong location. Students wait at wrong stops. Need GPS fix.,Transport,Medium,Transport Office,3
+Hostel pest control needed,Cockroaches and rats in Hostel Block H rooms. Pest control not done for semester. Health hazard.,Hostel,High,Hostel Office,2
+Placement resume review not done,Placement cell not reviewing resumes before company visits. Students sending poor resumes.,Placement,Medium,Placement Cell,7
+Classroom whiteboard markers missing,No markers in any classroom. Teachers bringing own. Supply not replenished.,Campus Facilities,Low,Maintenance Department,7
+Exam hall seating uncomfortable,Chairs in Exam Hall 1 have broken backs. Students back pain during 3-hour exams.,Examination,Medium,Examination Cell,5
+Fee late fine excessive,Late fine of Rs 5000 for 2-day delay. Excessive compared to other colleges. Need revision.,Fees and Accounts,High,Accounts Section,2
+Library previous year papers,Previous year question papers not available in library. Students cannot practice for exams.,Library,Medium,Library,4
+Bus AC not working,AC in Volvo buses not working. Unbearable heat in afternoon. Students dehydrated.,Transport,High,Transport Office,2
+Hostel study room AC,Study room AC in Hostel Block I not working. Cannot study in heat. Exams approaching.,Hostel,Medium,Hostel Office,3
+Placement higher studies guidance,"No guidance for higher studies (GRE, GATE, CAT). Only job placement focus. Need balance.",Placement,Medium,Placement Cell,7
+Campus washroom hygiene,"Washrooms in academic blocks unclean. No soap, broken taps. Basic hygiene not maintained.",Campus Facilities,High,Maintenance Department,2
+Exam marks not updated,Internal assessment marks not updated on portal. Students cannot calculate eligibility.,Examination,Medium,Examination Cell,5
+Fee installment option not available,No installment option for fees. Lump sum difficult for many families. Need flexibility.,Fees and Accounts,Medium,Accounts Section,4
+Library seating insufficient,Not enough seats in library during exams. Students sitting on floor. Need more furniture.,Library,Medium,Library,4
+Bus route change not communicated,Bus route 9 changed without notice. Students waiting at old stops. Missed classes.,Transport,Medium,Transport Office,3
+Hostel gate closing time,Hostel gate closes at 9 PM. Library open till 10. Students locked out. Need extension.,Hostel,Medium,Hostel Office,3
+Placement internship opportunities,No internship opportunities shared. Only final placement. Students need summer internships.,Placement,Medium,Placement Cell,7
+Classroom fan not working,Fans in multiple classrooms not working. Hot and stuffy. Cannot concentrate.,Campus Facilities,Medium,Maintenance Department,4
+Exam timetable clashes,Multiple exam timetable clashes for elective subjects. Students cannot appear for all.,Examination,High,Examination Cell,3
+Fee scholarship portal bug,Scholarship application portal saves incomplete form. Data loss on refresh. Frustrating.,IT Support,High,IT Cell,1.5
+Library newspaper subscription,Newspapers not delivered to library for 2 weeks. Students miss current affairs.,Library,Low,Library,7
+Bus driver phone usage,Bus drivers using phones while driving. Dangerous. Multiple near-miss incidents reported.,Transport,Critical,Transport Office,1
+Hostel electricity fluctuation,Voltage fluctuations in Hostel Block J. Laptops and chargers damaged. Need stabilizer.,Hostel,High,Hostel Office,2
+Placement soft skills training,Soft skills training too basic. Not industry-relevant. Students need advanced communication training.,Placement,Medium,Placement Cell,7
+Campus drinking water quality,Water from coolers tastes metallic. Suspected contamination. Need water quality test.,Campus Facilities,Critical,Maintenance Department,1
+Exam practical marks missing,Practical exam marks for Physics not uploaded. Theory marks there but practical missing.,Examination,Medium,Examination Cell,5
+Fee receipt for tax purpose,Need fee receipt with GST breakdown for income tax. Current receipt insufficient.,Fees and Accounts,Medium,Accounts Section,4
+Library magazine section,Magazine section outdated. Only old magazines. Need current subscriptions for competitive exams.,Library,Low,Library,7
+Bus timing for night classes,No bus after 7 PM for night classes. Students unsafe walking back. Need late bus.,Transport,High,Transport Office,2
+Hostel room allocation unfair,Room allocation favors seniors. Juniors get worst rooms with issues. Need transparent system.,Hostel,Medium,Hostel Office,3
+Placement alumni connect,No alumni connect sessions. Alumni willing to mentor but no platform. Missed opportunity.,Placement,Low,Placement Cell,10

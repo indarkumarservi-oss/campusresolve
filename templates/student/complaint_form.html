@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+
+{% block title %}Raise New Complaint - CampusResolve{% endblock %}
+
+{% block extra_head %}
+<style>
+.ai-suggestion-card {
+    border-left: 4px solid #0d6efd;
+    background-color: #f8f9fa;
+}
+.confidence-bar {
+    height: 6px;
+    border-radius: 3px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+.confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+.verification-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Raise New Complaint</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data" novalidate id="complaintForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control", placeholder="Brief title of your complaint (10-120 characters)") }}
+                        <div class="form-text">Characters: <span id="title-count">0</span>/120</div>
+                        {% for error in form.title.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", placeholder="Describe your complaint in detail (minimum 20 characters)", rows=5) }}
+                        <div class="form-text">Characters: <span id="desc-count">0</span>/2000</div>
+                        {% for error in form.description.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0"><i class="bi bi-robot me-2"></i>AI Verification</h6>
+                            <span class="badge bg-info verification-badge">AI analysis runs locally</span>
+                        </div>
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            AI analysis runs locally. Recommendations are based on the complaint text and configured rules.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="ai-trigger" style="display: none;">
+                        <button type="button" class="btn btn-outline-primary w-100" id="get-ai-suggestions">
+                            <i class="bi bi-robot me-1"></i><span id="btn-text"><i class="bi bi-robot me-1"></i>Verify with AI</span>
+                        </button>
+                        <div class="form-text">Available after typing at least 25 characters in title + description</div>
+                    </div>
+                    
+                    <div class="card ai-suggestion-card p-3 mb-3" id="ai-suggestions" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0"><i class="bi bi-robot me-2"></i>AI Verification Results</h5>
+                            <span class="badge bg-{{ 'warning' if ai_suggestions and ai_suggestions.needs_manual_review else 'success' }} verification-badge" id="verification-status">
+                                {% if ai_suggestions and ai_suggestions.needs_manual_review %}Manual Review Required{% else %}Verified{% endif %}
+                            </span>
+                        </div>
+                        <div class="alert alert-warning mb-3">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            <strong>AI analysis runs locally.</strong> Recommendations are based on the complaint text and configured rules.
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Category</label>
+                                <div id="ai-category" class="fw-bold">-</div>
+                                <div class="confidence-bar mt-1"><div class="confidence-fill bg-primary" id="ai-cat-conf" style="width: 0%"></div></div>
+                                <small class="text-muted" id="ai-cat-conf-text">0%</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Priority</label>
+                                <div id="ai-priority" class="fw-bold">-</div>
+                                <div class="confidence-bar mt-1"><div class="confidence-fill bg-warning" id="ai-pri-conf" style="width: 0%"></div></div>
+                                <small class="text-muted" id="ai-pri-conf-text">0%</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Duration</label>
+                                <div id="ai-duration" class="fw-bold">-</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Department</label>
+                                <div id="ai-department" class="fw-bold">-</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Deadline</label>
+                                <div id="ai-deadline" class="fw-bold">-</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">Confidence</label>
+                                <div id="ai-overall-conf" class="fw-bold">-</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Explanation</label>
+                            <div id="ai-explanation" class="small text-muted">-</div>
+                        </div>
+                        <div class="mb-3" id="similar-complaints-section" style="display: none;">
+                            <label class="form-label small text-muted">Similar Complaints</label>
+                            <div id="similar-complaints" class="small"></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary flex-fill" id="accept-ai" disabled>
+                                <i class="bi bi-check-circle me-1"></i>Use AI Suggestions
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="dismiss-ai">
+                                <i class="bi bi-x-circle me-1"></i>Dismiss
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3" id="verification-panel" style="display: none;">
+                        <div class="card-header bg-success text-white">
+                            <i class="bi bi-shield-check me-2"></i>AI Verified - Ready to Submit
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Verification Token:</strong> Valid and ready for submission.</p>
+                            <p class="mb-2 small text-muted">This verification is bound to your complaint text. Changing the title or description will require re-verification.</p>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-danger" id="reverify-btn">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Re-verify
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger" id="verification-error" style="display: none;"></div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select", id="category-select", disabled=True) }}
+                            {% for error in form.category.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.priority.label(class="form-label") }}
+                            {{ form.priority(class="form-select", id="priority-select", disabled=True) }}
+                            {% for error in form.priority.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.location.label(class="form-label") }}
+                        {{ form.location(class="form-control", placeholder="e.g., Hostel Block A, Room 101") }}
+                        {% for error in form.location.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        {{ form.is_anonymous(class="form-check-input", id="is_anonymous") }}
+                        {{ form.is_anonymous.label(class="form-check-label", for="is_anonymous") }}
+                        <div class="form-text">Your name will be hidden from staff. Admins can still see your identity.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.attachment.label(class="form-label") }}
+                        {{ form.attachment(class="form-control", id="attachment-input") }}
+                        <div class="form-text">PDF, PNG, JPG only. Maximum 5MB.</div>
+                        {% for error in form.attachment.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Hidden fields for verification token -->
+                    <input type="hidden" name="ai_verification_token" id="ai_verification_token">
+                    <input type="hidden" name="ai_verified" id="ai_verified" value="false">
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i>Cancel</a>
+                        {{ form.submit(class="btn btn-primary", id="submit-btn", disabled=True) }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const descInput = document.getElementById('description');
+    const titleCount = document.getElementById('title-count');
+    const descCount = document.getElementById('desc-count');
+    const aiTrigger = document.getElementById('ai-trigger');
+    const aiSuggestions = document.getElementById('ai-suggestions');
+    const verificationPanel = document.getElementById('verification-panel');
+    const getAiBtn = document.getElementById('get-ai-suggestions');
+    const btnText = document.getElementById('btn-text');
+    const acceptAiBtn = document.getElementById('accept-ai');
+    const dismissAiBtn = document.getElementById('dismiss-ai');
+    const reverifyBtn = document.getElementById('reverify-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const verificationError = document.getElementById('verification-error');
+    const aiVerifiedInput = document.getElementById('ai_verified');
+    const aiTokenInput = document.getElementById('ai_verification_token');
+    const submitBtnForm = document.getElementById('complaintForm');
+    const categorySelect = document.getElementById('category-select');
+    const prioritySelect = document.getElementById('priority-select');
+    
+    let currentVerificationToken = null;
+    let currentTitle = '';
+    let currentDescription = '';
+    let isVerified = false;
+    
+    function updateCounts() {
+        titleCount.textContent = titleInput.value.length;
+        descCount.textContent = descInput.value.length;
+        const totalChars = titleInput.value.length + descInput.value.length;
+        aiTrigger.style.display = totalChars >= 25 ? 'block' : 'none';
+        
+        // Reset verification if text changed
+        if (isVerified && (currentTitle !== titleInput.value || currentDescription !== descInput.value)) {
+            resetVerification();
+        }
+    }
+    
+    function resetVerification() {
+        isVerified = false;
+        currentVerificationToken = null;
+        currentTitle = '';
+        currentDescription = '';
+        aiVerifiedInput.value = 'false';
+        aiTokenInput.value = '';
+        submitBtn.disabled = true;
+        categorySelect.disabled = true;
+        prioritySelect.disabled = true;
+        aiSuggestions.style.display = 'none';
+        verificationPanel.style.display = 'none';
+        aiTrigger.style.display = 'block';
+        aiSuggestions.style.display = 'none';
+        acceptAiBtn.disabled = true;
+        document.getElementById('ai_verification_token').value = '';
+    }
+    
+    function showVerificationError(message) {
+        const errorDiv = document.getElementById('verification-error');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
+    }
+    
+    function updateCounts() {
+        titleCount.textContent = titleInput.value.length;
+        descCount.textContent = descInput.value.length;
+        const totalChars = titleInput.value.length + descInput.value.length;
+        aiTrigger.style.display = totalChars >= 25 ? 'block' : 'none';
+        
+        // Reset verification if text changed
+        if (isVerified && (currentTitle !== titleInput.value || currentDescription !== descInput.value)) {
+            resetVerification();
+        }
+    }
+    
+    titleInput.addEventListener('input', updateCounts);
+    descInput.addEventListener('input', updateCounts);
+    updateCounts();
+    
+    getAiBtn.addEventListener('click', async function() {
+        getAiBtn.disabled = true;
+        btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analyzing...';
+        
+        try {
+            const csrfToken = "{{ csrf_token() }}";
+            const response = await fetch('/api/ai/suggest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                },
+                body: `title=${encodeURIComponent(titleInput.value)}&description=${encodeURIComponent(descInput.value)}`
+            });
+            
+            const data = await response.json();
+            
+            getAiBtn.disabled = false;
+            btnText.innerHTML = '<i class="bi bi-robot me-1"></i>Verify with AI';
+            
+            if (data.error) {
+                showVerificationError('Error: ' + data.error);
+                return;
+            }
+            
+            currentTitle = titleInput.value;
+            currentDescription = descInput.value;
+            
+            document.getElementById('ai-category').textContent = data.category;
+            document.getElementById('ai-cat-conf').style.width = data.category_confidence + '%';
+            document.getElementById('ai-cat-conf-text').textContent = data.category_confidence + '%';
+            
+            document.getElementById('ai-priority').textContent = data.priority;
+            document.getElementById('ai-pri-conf').style.width = data.priority_confidence + '%';
+            document.getElementById('ai-pri-conf-text').textContent = data.priority_confidence + '%';
+            
+            document.getElementById('ai-department').textContent = data.department;
+            
+            // Calculate deadline
+            if (data.estimated_duration_hours) {
+                const deadline = new Date();
+                deadline.setHours(deadline.getHours() + data.estimated_duration_hours);
+                document.getElementById('ai-duration').textContent = data.estimated_duration_hours + ' hours';
+                document.getElementById('ai-deadline').textContent = deadline.toLocaleString();
+            } else if (data.estimated_duration_days) {
+                const deadline = new Date();
+                deadline.setDate(deadline.getDate() + data.estimated_duration_days);
+                document.getElementById('ai-duration').textContent = data.estimated_duration_days + ' days';
+                document.getElementById('ai-deadline').textContent = deadline.toLocaleDateString();
+            }
+            
+            // Overall confidence (minimum of category and priority)
+            const overallConf = Math.min(data.category_confidence, data.priority_confidence);
+            document.getElementById('ai-overall-conf').textContent = overallConf.toFixed(1) + '%';
+            
+            document.getElementById('ai-explanation').textContent = data.explanation;
+            
+            if (data.similar_complaints && data.similar_complaints.length > 0) {
+                document.getElementById('similar-complaints-section').style.display = 'block';
+                document.getElementById('similar-complaints').innerHTML = data.similar_complaints.map(c => 
+                    `<div class="mb-1"><strong>${c.ticket_number}</strong>: ${c.title} (${c.category}, ${c.similarity}% similar)</div>`
+                ).join('');
+            } else {
+                document.getElementById('similar-complaints-section').style.display = 'none';
+            }
+            
+            // Store verification token
+            currentVerificationToken = data.verification_token;
+            document.getElementById('ai_verification_token').value = data.verification_token || '';
+            
+            // Show/hide based on confidence
+            if (data.needs_manual_review) {
+                document.getElementById('verification-status').textContent = 'Low Confidence - Review Carefully';
+                document.getElementById('verification-status').className = 'badge bg-warning verification-badge';
+                acceptAiBtn.disabled = false;
+                acceptAiBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Use AI Suggestions (Low Confidence)';
+            } else {
+                document.getElementById('verification-status').textContent = 'Verified';
+                document.getElementById('verification-status').className = 'badge bg-success verification-badge';
+                acceptAiBtn.disabled = false;
+                acceptAiBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Use AI Suggestions';
+            }
+            
+            aiTrigger.style.display = 'none';
+            aiSuggestions.style.display = 'block';
+            
+        } catch (err) {
+            console.error(err);
+            showVerificationError('Failed to get AI suggestions');
+        } finally {
+            getAiBtn.disabled = false;
+            btnText.innerHTML = '<i class="bi bi-robot me-1"></i>Verify with AI';
+        }
+    });
+    
+    acceptAiBtn.addEventListener('click', function() {
+        if (!currentVerificationToken) return;
+        
+        // Populate form fields
+        categorySelect.value = document.getElementById('ai-category').textContent;
+        prioritySelect.value = document.getElementById('ai-priority').textContent;
+        categorySelect.disabled = false;
+        prioritySelect.disabled = false;
+        
+        // Store verification data
+        aiVerifiedInput.value = 'true';
+        document.getElementById('ai_verification_token').value = currentVerificationToken;
+        isVerified = true;
+        
+        // Update UI
+        aiSuggestions.style.display = 'none';
+        verificationPanel.style.display = 'block';
+        submitBtn.disabled = false;
+        
+        // Enable form fields
+        categorySelect.disabled = false;
+        prioritySelect.disabled = false;
+    });
+    
+    dismissAiBtn.addEventListener('click', function() {
+        aiSuggestions.style.display = 'none';
+        aiTrigger.style.display = 'block';
+        currentVerificationToken = null;
+        document.getElementById('ai_verification_token').value = '';
+    });
+    
+    reverifyBtn.addEventListener('click', function() {
+        resetVerification();
+    });
+    
+    // Form submission validation
+    submitBtnForm.addEventListener('submit', async function(e) {
+        if (!isVerified) {
+            e.preventDefault();
+            showVerificationError('Please verify with AI before submitting.');
+            return;
+        }
+        
+        // Prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Submitting...';
+        
+        // Verify token is still valid
+        const token = document.getElementById('ai_verification_token').value;
+        const title = titleInput.value;
+        const description = descInput.value;
+        
+        if (!token) {
+            e.preventDefault();
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send me-1"></i>Submit Complaint';
+            showVerificationError('Verification token missing. Please verify again.');
+            return;
+        }
+        
+        try {
+            const csrfToken = "{{ csrf_token() }}";
+            const response = await fetch('/api/ai/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ token, title, description })
+            });
+            
+            const data = await response.json();
+            
+            if (!data.valid) {
+                e.preventDefault();
+                showVerificationError('Verification failed: ' + (data.error || 'Unknown error'));
+                resetVerification();
+                return;
+            }
+            
+            // Allow manual override of AI suggestions - just warn if changed
+            const selectedCategory = categorySelect.value;
+            const selectedPriority = prioritySelect.value;
+            const aiCategory = document.getElementById('ai-category').textContent;
+            const aiPriority = document.getElementById('ai-priority').textContent;
+            
+            if (selectedCategory !== aiCategory || selectedPriority !== aiPriority) {
+                if (!confirm('You changed the AI-suggested category/priority. Continue with your selection?')) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+            
+        } catch (err) {
+            e.preventDefault();
+            showVerificationError('Verification check failed. Please try again.');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

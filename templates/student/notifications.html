@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - CampusResolve{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-bell me-2"></i>Notifications</h2>
+            {% if notifications.items|selectattr('is_read', 'equalto', false)|list|length > 0 %}
+            <form method="POST" action="{{ url_for('student.mark_all_notifications_read') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-check-all me-1"></i>Mark All as Read</button>
+            </form>
+            {% endif %}
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                {% if notifications.items %}
+                <ul class="list-group list-group-flush">
+                    {% for n in notifications.items %}
+                    <li class="list-group-item notification-item {% if not n.is_read %}unread{% endif %}" data-notif-id="{{ n.id }}">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <div class="bg-{% if not n.is_read %}primary{% else %}light{% endif %} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-{% if 'Assigned' in n.title %}person-check{% elif 'Status' in n.title %}arrow-repeat{% elif 'Feedback' in n.title %}star{% elif 'Comment' in n.title %}chat{% else %}info-circle{% endif %} text-{% if not n.is_read %}white{% else %}muted{% endif %}"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1 {% if not n.is_read %}fw-bold{% endif %}">{{ n.title }}</h6>
+                                    <small class="text-muted">{{ n.created_at|datetimeformat }}</small>
+                                </div>
+                                <p class="mb-1 {% if not n.is_read %}fw-medium{% endif %}">{{ n.message }}</p>
+                                {% if n.complaint_id %}
+                                <a href="{{ url_for('student.complaint_detail', ticket_number=n.complaint.ticket_number) }}" class="btn btn-sm btn-outline-primary">View Complaint</a>
+                                {% endif %}
+                            </div>
+                            {% if not n.is_read %}
+                            <button class="btn btn-sm btn-outline-secondary mark-read" data-notif-id="{{ n.id }}" title="Mark as read"><i class="bi bi-check"></i></button>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                {% if notifications.pages > 1 %}
+                <div class="card-footer">
+                    <nav aria-label="Notifications pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if notifications.has_prev %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('student.notifications', page=notifications.prev_num) }}">Previous</a></li>
+                            {% endif %}
+                            
+                            {% for page_num in notifications.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    {% if page_num == notifications.page %}
+                                    <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                                    {% else %}
+                                    <li class="page-item"><a class="page-link" href="{{ url_for('student.notifications', page=page_num) }}">{{ page_num }}</a></li>
+                                    {% endif %}
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if notifications.has_next %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('student.notifications', page=notifications.next_num) }}">Next</a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-bell-slash display-1 text-muted"></i>
+                    <p class="mt-3 text-muted">No notifications</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const csrfToken = "{{ csrf_token() }}";
+    const headers = {'X-CSRFToken': csrfToken, 'Content-Type': 'application/json'};
+
+    document.querySelectorAll('.mark-read').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const notifId = this.dataset.notifId;
+            fetch(`/api/notifications/read/${notifId}`, {method: 'POST', headers: headers})
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const item = document.querySelector(`.notification-item[data-notif-id="${notifId}"]`);
+                        item.classList.remove('unread');
+                        item.querySelector('h6').classList.remove('fw-bold');
+                        item.querySelector('p').classList.remove('fw-medium');
+                        this.remove();
+                        updateBadge();
+                    }
+                });
+        });
+    });
+    
+    function updateBadge() {
+        fetch('/api/notifications/unread-count')
+            .then(res => res.json())
+            .then(data => {
+                const badge = document.getElementById('notif-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+    }
+});
+</script>
+{% endblock %}
