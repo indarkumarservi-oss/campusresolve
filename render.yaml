@@ -3,7 +3,7 @@ services:
     name: campusresolve
     env: python
     pythonVersion: "3.12"
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python init_db.py
     startCommand: gunicorn run:app --workers 2 --threads 4 --timeout 120
     envVars:
       - key: FLASK_CONFIG
