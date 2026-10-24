@@ -2,9 +2,8 @@ services:
   - type: web
     name: campusresolve
     env: python
-    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python init_db.py && gunicorn run:app --workers 2 --threads 4 --timeout 120 --access-logfile - --error-logfile -
+    startCommand: gunicorn run:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -16,11 +15,9 @@ services:
         fromDatabase:
           name: campusresolve-db
           property: connectionString
-      - key: REGISTRATION_ENABLED
-        value: "true"
 
 databases:
   - name: campusresolve-db
-    plan: free
     databaseName: campusresolve
     user: campusresolve
+    plan: free
