@@ -153,5 +153,27 @@ def create_app(config_name=None):
 
     with app.app_context():
         db.create_all()
+        
+        # Create admin user if not exists
+        try:
+            from config import Config
+            admin = User.query.filter_by(role='admin').first()
+            if not admin:
+                admin = User(
+                    full_name='Admin User',
+                    email=Config.DEMO_ACCOUNTS['admin']['email'],
+                    role='admin',
+                    is_active=True,
+                    is_approved=True
+                )
+                admin.set_password(Config.DEMO_ACCOUNTS['admin']['password'])
+                db.session.add(admin)
+                db.session.commit()
+                print(f"Created admin user: {admin.email}")
+            else:
+                print(f"Admin user exists: {admin.email}")
+        except Exception as e:
+            print(f"Admin creation error: {e}")
+            db.session.rollback()
 
     return app
