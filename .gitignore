@@ -45,9 +45,7 @@ logs/
 htmlcov/
 .pytest_cache/
 
-# Model files (generated)
-models/*.joblib
-models/model_metadata.json
+
 
 # Distribution / Packaging
 build/

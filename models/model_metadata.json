@@ -1,0 +1,143 @@
+{
+  "algorithm": "LogisticRegression with TF-IDF (category/priority), RandomForestRegressor with TF-IDF (duration)",
+  "training_date": "2026-10-24T15:12:18.377607",
+  "dataset_records": 2102,
+  "categories": [
+    "Academics",
+    "Campus Facilities",
+    "Examination",
+    "Fees and Accounts",
+    "Hostel",
+    "IT Support",
+    "Library",
+    "Placement",
+    "Student Wellbeing",
+    "Transport"
+  ],
+  "priorities": [
+    "Critical",
+    "High",
+    "Low",
+    "Medium"
+  ],
+  "category_accuracy": 0.9976,
+  "priority_accuracy": 0.9525,
+  "duration_mae": 1.6204,
+  "category_cv_accuracy": 0.9981,
+  "priority_cv_accuracy": 0.9638,
+  "duration_cv_mae": 1.6728,
+  "category_report": {
+    "Academics": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 40.0
+    },
+    "Campus Facilities": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 41.0
+    },
+    "Examination": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 42.0
+    },
+    "Fees and Accounts": {
+      "precision": 0.9777777777777777,
+      "recall": 1.0,
+      "f1-score": 0.9887640449438202,
+      "support": 44.0
+    },
+    "Hostel": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 45.0
+    },
+    "IT Support": {
+      "precision": 1.0,
+      "recall": 0.9743589743589743,
+      "f1-score": 0.987012987012987,
+      "support": 39.0
+    },
+    "Library": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 41.0
+    },
+    "Placement": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 43.0
+    },
+    "Student Wellbeing": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 46.0
+    },
+    "Transport": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 40.0
+    },
+    "accuracy": 0.997624703087886,
+    "macro avg": {
+      "precision": 0.9977777777777778,
+      "recall": 0.9974358974358974,
+      "f1-score": 0.9975777031956806,
+      "support": 421.0
+    },
+    "weighted avg": {
+      "precision": 0.9976774874637108,
+      "recall": 0.997624703087886,
+      "f1-score": 0.997622623446638,
+      "support": 421.0
+    }
+  },
+  "priority_report": {
+    "Critical": {
+      "precision": 0.9696969696969697,
+      "recall": 0.9795918367346939,
+      "f1-score": 0.9746192893401016,
+      "support": 98.0
+    },
+    "High": {
+      "precision": 0.9313725490196079,
+      "recall": 0.9223300970873787,
+      "f1-score": 0.926829268292683,
+      "support": 103.0
+    },
+    "Low": {
+      "precision": 0.9611650485436893,
+      "recall": 0.9705882352941176,
+      "f1-score": 0.9658536585365853,
+      "support": 102.0
+    },
+    "Medium": {
+      "precision": 0.9487179487179487,
+      "recall": 0.940677966101695,
+      "f1-score": 0.9446808510638298,
+      "support": 118.0
+    },
+    "accuracy": 0.9524940617577197,
+    "macro avg": {
+      "precision": 0.952738128994554,
+      "recall": 0.9532970338044713,
+      "f1-score": 0.9529957668083,
+      "support": 421.0
+    },
+    "weighted avg": {
+      "precision": 0.9523734643218454,
+      "recall": 0.9524940617577197,
+      "f1-score": 0.9524121581609024,
+      "support": 421.0
+    }
+  }
+}
