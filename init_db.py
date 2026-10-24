@@ -11,6 +11,7 @@ from config import Config
 
 def init_database():
     """Initialize database with tables and demo data."""
+    print("Starting database initialization...")
     app = create_app('production')
     
     with app.app_context():
@@ -31,25 +32,45 @@ def init_database():
         if not admin:
             print("Creating admin user...")
             create_demo_users()
+            print("Admin user created successfully!")
+        else:
+            print(f"Admin user already exists: {admin.email}")
         
         print("Database initialization complete!")
 
 
 def create_demo_users():
     demo = Config.DEMO_ACCOUNTS
+    email = demo['admin']['email']
+    password = demo['admin']['password']
+    
+    print(f"Creating admin with email: {email}")
     
     admin = User(
         full_name='Admin User',
-        email=demo['admin']['email'],
+        email=email,
         role='admin',
         is_active=True,
         is_approved=True
     )
-    admin.set_password(demo['admin']['password'])
+    admin.set_password(password)
     db.session.add(admin)
     
-    db.session.commit()
-    print("Created admin user")
+    try:
+        db.session.commit()
+        print("Admin user committed to database")
+        
+        # Verify the user was created and password works
+        verify_admin = User.query.filter_by(email=email).first()
+        if verify_admin:
+            print(f"Verified admin exists: {verify_admin.email}")
+            print(f"Password check: {verify_admin.check_password(password)}")
+        else:
+            print("ERROR: Admin user not found after commit!")
+    except Exception as e:
+        db.session.rollback()
+        print(f"ERROR creating admin: {e}")
+        raise
 
 
 if __name__ == '__main__':
