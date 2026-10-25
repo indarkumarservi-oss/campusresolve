@@ -177,3 +177,5 @@ def create_app(config_name=None):
             db.session.rollback()
 
     return app
+
+app = create_app()
