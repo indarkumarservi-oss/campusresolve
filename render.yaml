@@ -5,7 +5,7 @@ services:
     pythonVersion: "3.12"
     buildCommand: pip install -r requirements.txt
     preStartCommand: python init_db.py
-    startCommand: gunicorn run:app --workers 2 --threads 4 --timeout 120
+    startCommand: gunicorn wsgi:app --workers 2 --threads 4 --timeout 120
     envVars:
       - key: FLASK_CONFIG
         value: production
